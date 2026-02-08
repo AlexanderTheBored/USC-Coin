@@ -17,6 +17,11 @@ export default function Home() {
   const [filteredItems, setFilteredItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
   
+  // Wallet state
+  const [walletConnected, setWalletConnected] = useState(false);
+  const [walletAddress, setWalletAddress] = useState('');
+  const [balance, setBalance] = useState(250.00); // Simulated USC balance
+  
   // Filter states
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCanteen, setSelectedCanteen] = useState('all');
@@ -64,6 +69,20 @@ export default function Home() {
     setFilteredItems(results);
   }, [searchQuery, selectedCanteen, selectedCategory, menuItems]);
 
+  // Simulate wallet connection
+  const connectWallet = () => {
+    // In real app, this would call OneWallet extension
+    // For demo, we'll simulate it
+    const mockAddress = `0x${Math.random().toString(16).substring(2, 10)}...`;
+    setWalletAddress(mockAddress);
+    setWalletConnected(true);
+  };
+
+  const disconnectWallet = () => {
+    setWalletConnected(false);
+    setWalletAddress('');
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -77,8 +96,44 @@ export default function Home() {
       {/* Header */}
       <header className="bg-white shadow-sm border-b sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 py-6">
-          <h1 className="text-3xl font-bold text-gray-900">USC FoodChain</h1>
-          <p className="text-gray-900 mt-1">See it. Buy it. Blockchain it.</p>
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">USC FoodChain</h1>
+              <p className="text-gray-900 mt-1">See it. Buy it. Blockchain it.</p>
+            </div>
+            
+            {/* Wallet Connect Button */}
+            <div>
+              {!walletConnected ? (
+                <button
+                  onClick={connectWallet}
+                  className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium"
+                >
+                  Connect Wallet
+                </button>
+              ) : (
+                <div className="flex items-center gap-4">
+                  <div className="text-right">
+                    <p className="text-sm text-gray-600">Balance</p>
+                    <p className="text-lg font-bold text-green-600">
+                      ₱{balance.toFixed(2)} ({(balance / 50).toFixed(2)} USC)
+                    </p>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <div className="px-4 py-2 bg-gray-100 rounded-lg text-gray-900 text-sm font-mono">
+                      {walletAddress}
+                    </div>
+                    <button
+                      onClick={disconnectWallet}
+                      className="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition text-sm"
+                    >
+                      Disconnect
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </header>
 
@@ -201,6 +256,14 @@ export default function Home() {
                   </div>
                   <div className="text-right">
                     <p className="text-sm text-gray-600">Stock: {item.current_stock}</p>
+                    {walletConnected && (
+                      <button
+                        onClick={() => alert(`Purchasing ${item.name} for ₱${item.price_php}!`)}
+                        className="mt-2 px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition"
+                      >
+                        Buy Now
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
